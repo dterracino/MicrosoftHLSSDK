@@ -394,7 +394,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
           {
             try
             {
-              await _WebVTTCaptions.DownloadAllSegmentsAsync(_WebVTTCaptions.CurrentSubtitleId);
+              await _WebVTTCaptions.DownloadAllSegmentsAsync(_WebVTTCaptions.CurrentSubtitleId, this._MediaPlayer.Position);
             }
             catch { }
           });
@@ -469,7 +469,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
         if (null != e.NewValue && this._Controller.IsValid)
         {
           this._WebVTTCaptions = new HLSWebVTTCaptions(this._MediaPlayer, _Controller);
-          await this._WebVTTCaptions.DownloadAllSegmentsAsync(e.NewValue.Id);
+          await this._WebVTTCaptions.DownloadAllSegmentsAsync(e.NewValue.Id, this._MediaPlayer.Position);
         }
       }
       catch  { }

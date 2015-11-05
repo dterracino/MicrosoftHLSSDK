@@ -118,10 +118,11 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
     }
 
     /// <summary>
-    /// Download all segments for the closed caption.
+    /// Download all segments for the closed caption starting in specified <paramref name="position"/>.
     /// </summary>
     /// <param name="id">ID of the closed caption to download.</param>
-    public async Task DownloadAllSegmentsAsync(string id)
+    /// <param name="position">Starting position for the download.</param>
+    public async Task DownloadAllSegmentsAsync(string id, TimeSpan position)
     {
       try
       {
@@ -129,7 +130,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
         if (null != subtitle)
         {
           this.CurrentSubtitleId = id;
-          await this.DownloadAllSegmentsAsync(subtitle);
+          await this.DownloadAllSegmentsAsync(subtitle, position);
         }
       }
       catch (NullReferenceException)
@@ -139,11 +140,12 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
     }
 
     /// <summary>
-    /// Download all segments for the closed caption.
+    /// Download all segments for the closed caption starting in specified <paramref name="position"/>.
     /// </summary>
     /// <param name="subtitle">Subtitle rendition of the closed caption to download.</param>
+    /// <param name="position">Starting position for the download.</param>
     /// <returns>Async task.</returns>
-    private async Task DownloadAllSegmentsAsync(IHLSSubtitleRendition subtitle)
+    private async Task DownloadAllSegmentsAsync(IHLSSubtitleRendition subtitle, TimeSpan position)
     {
       if (null == this._Controller || !this._Controller.IsValid || null == this._Controller.Playlist)
         return;
@@ -157,13 +159,13 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
       List<Tuple<uint, string>> toFetch = null;
       if (this._Controller.Playlist.IsLive && !(null == this._WebVTTLocators || 0 == this._WebVTTLocators.Count))
       {
-        var locdata = locators.Select(l => new Tuple<uint, string>(l.Index, l.Location)).ToList();
+        var locdata = locators.Where(l => l.StartPosition >= position.TotalSeconds).Select(l => new Tuple<uint, string>(l.Index, l.Location)).ToList();
         toFetch = locdata.Except(_WebVTTLocators, new LocatorEqualityComparer()).ToList();
         this._WebVTTLocators = locdata;
       }
       else
       {
-        this._WebVTTLocators = locators.Select(l => new Tuple<uint, string>(l.Index, l.Location)).ToList();
+        this._WebVTTLocators = locators.Where(l => l.StartPosition >= position.TotalSeconds).Select(l => new Tuple<uint, string>(l.Index, l.Location)).ToList();
         toFetch = this._WebVTTLocators;
       }
 
