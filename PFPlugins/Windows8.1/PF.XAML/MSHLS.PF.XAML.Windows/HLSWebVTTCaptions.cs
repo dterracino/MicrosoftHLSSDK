@@ -168,16 +168,18 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
         toFetch = this._WebVTTLocators;
       }
 
-
-      foreach (var loc in toFetch)
+      await Task.Run(async () =>
       {
-        if (this._Cancel)
-          break;
+        foreach (var loc in toFetch)
+        {
+          if (this._Cancel)
+            break;
 
-        Uri uri;
-        if (Uri.TryCreate(loc.Item2, UriKind.RelativeOrAbsolute, out uri))
-          await this.DownloadSegmentAsync(loc.Item1, uri);
-      }
+          Uri uri;
+          if (Uri.TryCreate(loc.Item2, UriKind.RelativeOrAbsolute, out uri))
+            await this.DownloadSegmentAsync(loc.Item1, uri);
+        }
+      });
     }
 
     /// <summary>
