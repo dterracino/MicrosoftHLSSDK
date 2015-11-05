@@ -226,7 +226,7 @@ Windows::Foundation::Collections::IVector<IHLSSubtitleLocator^>^ HLSSubtitleRend
 
 	std::transform(begin(pRenditionObj->spPlaylist->Segments), end(pRenditionObj->spPlaylist->Segments), begin(retval), [](shared_ptr<MediaSegment> seg)
 	{
-		return ref new HLSSubtitleLocator(seg->MediaUri, seg->SequenceNumber, (float) seg->StartPTSNormalized->ValueInTicks / 10000000, (float) seg->Duration / 10000000);
+		return ref new HLSSubtitleLocator(seg->MediaUri, seg->SequenceNumber, (float) seg->Duration / 10000000, (float) seg->StartPTSNormalized->ValueInTicks / 10000000);
 	});
 
 	return retval;
