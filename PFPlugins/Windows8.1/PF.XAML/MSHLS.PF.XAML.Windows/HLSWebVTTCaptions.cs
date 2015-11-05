@@ -24,7 +24,6 @@ using Microsoft.HLSClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Microsoft.PlayerFramework.Adaptive.HLS
@@ -49,17 +48,17 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
   /// </summary>
   class HLSWebVTTCaptions
   {
-    private List<IHLSAlternateRendition> _EmptyRenditionsList = new List<IHLSAlternateRendition>();
+    private readonly List<IHLSAlternateRendition> _EmptyRenditionsList = new List<IHLSAlternateRendition>();
 
     /// <summary>
     /// MMPPF media player that is used when updating closed caption data.
     /// </summary>
-    private MediaPlayer _MediaPlayer;
+    private readonly MediaPlayer _MediaPlayer;
 
     /// <summary>
     /// HLS Client controller that contains the closed caption metadata necessary to download all segments.
     /// </summary>
-    private IHLSController _Controller;
+    private readonly IHLSController _Controller;
 
     /// <summary>
     /// Flag used to cancel downloads.
@@ -222,12 +221,12 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
     {
       
       var payloadupper = payload.ToUpperInvariant();
-      var hdridx = payloadupper.IndexOf("X-TIMESTAMP-MAP");
+      var hdridx = payloadupper.IndexOf("X-TIMESTAMP-MAP", StringComparison.Ordinal);
       if (hdridx < 0) return TimeSpan.Zero;
-      var localcuetimeentryidx = payloadupper.IndexOf("LOCAL:", hdridx);
+      var localcuetimeentryidx = payloadupper.IndexOf("LOCAL:", hdridx, StringComparison.Ordinal);
       if (localcuetimeentryidx < 0) return TimeSpan.Zero;
       
-      var ptsentryidx = payloadupper.IndexOf("MPEGTS:", hdridx);
+      var ptsentryidx = payloadupper.IndexOf("MPEGTS:", hdridx, StringComparison.Ordinal);
       if (ptsentryidx < 0) return TimeSpan.Zero;
       
 
@@ -236,7 +235,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
       if (ptsentryidx > localcuetimeentryidx)
       {
         
-        var commasepidx = payloadupper.IndexOf(",", localcuetimeentryidx);
+        var commasepidx = payloadupper.IndexOf(",", localcuetimeentryidx, StringComparison.Ordinal);
         if (commasepidx < 0) return TimeSpan.Zero;
 
 
@@ -246,7 +245,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
        
         int ptstimestartat = ptsentryidx + ("MPEGTS:").Length;
         var ca = payloadupper.Skip(ptstimestartat).TakeWhile(c => Char.IsNumber(c));
-        if (ca == null || ca.Count() == 0) return TimeSpan.Zero;
+        if (ca == null || !ca.Any()) return TimeSpan.Zero;
         szptstime = new string(ca.ToArray());
        
       }
@@ -255,12 +254,12 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
        
         int cuetimestartat = localcuetimeentryidx + ("LOCAL:").Length;
         var ca = payloadupper.Skip(cuetimestartat).TakeWhile(c => c != '\n' && c != '\r');
-        if (ca == null || ca.Count() == 0) return TimeSpan.Zero;
+        if (ca == null || !ca.Any()) return TimeSpan.Zero;
         szcuetime = new string(ca.ToArray());
       
         int ptstimestartat = ptsentryidx + ("MPEGTS:").Length;
         var ca2 = payloadupper.Skip(ptstimestartat).TakeWhile(c => Char.IsNumber(c));
-        if (ca2 == null || ca2.Count() == 0) return TimeSpan.Zero;
+        if (ca2 == null || !ca2.Any()) return TimeSpan.Zero;
         szptstime = new string(ca2.ToArray());
         
       }

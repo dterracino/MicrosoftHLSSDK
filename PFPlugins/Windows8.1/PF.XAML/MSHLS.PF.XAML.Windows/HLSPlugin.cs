@@ -23,17 +23,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 using Microsoft.HLSClient;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
 using Windows.UI.Xaml;
 
 namespace Microsoft.PlayerFramework.Adaptive.HLS
 {
   public class HLSPlugin : IPlugin
   {
-    private List<IHLSAlternateRendition> _EmptyRenditionsList = new List<IHLSAlternateRendition>();
+    private readonly List<IHLSAlternateRendition> _EmptyRenditionsList = new List<IHLSAlternateRendition>();
 
     /// <summary>
     /// Event handler fires when playback is about to begin.
@@ -147,7 +144,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
     /// App developers would generally be interested in this only to wire up to the FIX ME event
     /// on the controller factory for the initial playlist request.
     /// </summary>
-    private HLSControllerFactory _ControllerFactory;
+    private readonly HLSControllerFactory _ControllerFactory;
     public IHLSControllerFactory ControllerFactory
     {
       get { return _ControllerFactory; }
@@ -163,7 +160,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
       this.RegisterByteStreamHandler(fileExtension, mimeType);
     }
 
-    private Windows.Foundation.Collections.IPropertySet _ControllerFactoryPropertySet;
+    private readonly Windows.Foundation.Collections.IPropertySet _ControllerFactoryPropertySet;
 
     /// <summary>
     /// The HLSController instance that holds the keys to bitrates switching etc.
