@@ -169,14 +169,17 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
 
       await Task.Run(async () =>
       {
-        foreach (var loc in toFetch)
+        using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
         {
-          if (this._Cancel)
-            break;
+          foreach (var loc in toFetch)
+          {
+            if (this._Cancel)
+              break;
 
-          Uri uri;
-          if (Uri.TryCreate(loc.Item2, UriKind.RelativeOrAbsolute, out uri))
-            await this.DownloadSegmentAsync(loc.Item1, uri);
+            Uri uri;
+            if (Uri.TryCreate(loc.Item2, UriKind.RelativeOrAbsolute, out uri))
+              await this.DownloadSegmentAsync(client, loc.Item1, uri);
+          }
         }
       });
     }
@@ -184,30 +187,28 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
     /// <summary>
     /// Download single closed caption segment.
     /// </summary>
-    /// <param name="segmentIndex">Closeed caption segment index to download.</param>
+    /// <param name="client">HTTP client to perform the request on.</param>
+    /// <param name="segmentIndex">Closed caption segment index to download.</param>
     /// <param name="segmentUri">Closed caption segment url to download.</param>
     /// <returns>Async task.</returns>
-    private async Task DownloadSegmentAsync(uint segmentIndex, Uri segmentUri)
+    private async Task DownloadSegmentAsync(System.Net.Http.HttpClient client, uint segmentIndex, Uri segmentUri)
     {
       try
       {
-        using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
+        var result = await client.GetStringAsync(segmentUri);
+        if (!string.IsNullOrEmpty(result) && !this._Cancel)
         {
-          var result = await client.GetStringAsync(segmentUri);
-          if (!string.IsNullOrEmpty(result) && !this._Cancel)
+          await this._MediaPlayer.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
           {
-            await this._MediaPlayer.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-              //if (0 == segmentIndex || null == this._MediaPlayer.SelectedCaption.Payload)
-              //  this._MediaPlayer.SelectedCaption.Payload = result;
-              //else
-              //  this._MediaPlayer.SelectedCaption.AugmentPayload(result, TimeSpan.Zero, TimeSpan.Zero);
+            //if (0 == segmentIndex || null == this._MediaPlayer.SelectedCaption.Payload)
+            //  this._MediaPlayer.SelectedCaption.Payload = result;
+            //else
+            //  this._MediaPlayer.SelectedCaption.AugmentPayload(result, TimeSpan.Zero, TimeSpan.Zero);
 
-              //this._MediaPlayer.SelectedCaption.AugmentPayload(result, TimeSpan.Zero, TimeSpan.Zero);
+            //this._MediaPlayer.SelectedCaption.AugmentPayload(result, TimeSpan.Zero, TimeSpan.Zero);
 
-              this._MediaPlayer.SelectedCaption.AugmentPayload(result, ParseHLSWebVTTTimeStampOffset(result), TimeSpan.Zero);
-            });
-          }
+            this._MediaPlayer.SelectedCaption.AugmentPayload(result, ParseHLSWebVTTTimeStampOffset(result), TimeSpan.Zero);
+          });
         }
       }
       catch (Exception ex)
