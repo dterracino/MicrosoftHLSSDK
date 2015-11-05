@@ -437,6 +437,20 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
     }
 
     /// <summary>
+    /// Occurs when the MediaElement has closed the media source audio or video.
+    /// </summary>
+    /// <param name="sender">MMPPF media player.</param>
+    /// <param name="e">Not used.</param>
+    private void MediaPlayer_MediaClosed(object sender, RoutedEventArgs e)
+    {
+      if (null != this._WebVTTCaptions)
+      {
+        this._WebVTTCaptions.Cancel();
+        this._WebVTTCaptions = null;
+      }
+    }
+
+    /// <summary>
     /// The selected closed caption has changed.
     /// </summary>
     /// <param name="sender">MMPPF media player.</param>
@@ -512,6 +526,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
       this._MediaPlayer.SelectedAudioStreamChanged += MediaPlayer_SelectedAudioStreamChanged;
       this._MediaPlayer.MediaLoading += MediaPlayer_MediaLoading;
       this._MediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
+      this._MediaPlayer.MediaClosed += MediaPlayer_MediaClosed;
       this._MediaPlayer.SelectedCaptionChanged += MediaPlayer_SelectedCaptionChanged;
 
       // Currently, the HLS SDK is not capable of handling the rapid-fire seek requests generated if 
@@ -530,6 +545,7 @@ namespace Microsoft.PlayerFramework.Adaptive.HLS
       this._MediaPlayer.SelectedAudioStreamChanged -= MediaPlayer_SelectedAudioStreamChanged;
       this._MediaPlayer.MediaLoading -= MediaPlayer_MediaLoading;
       this._MediaPlayer.MediaOpened -= MediaPlayer_MediaOpened;
+      this._MediaPlayer.MediaClosed -= MediaPlayer_MediaClosed;
       this._MediaPlayer.SelectedCaptionChanged -= MediaPlayer_SelectedCaptionChanged;
     }
 
