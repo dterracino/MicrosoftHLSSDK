@@ -254,7 +254,9 @@ shared_ptr<StreamInfo> Playlist::DownloadVariantStreamPlaylist(unsigned int desi
         {
             auto StartSeg = IsLive ?
                 streaminfo->spPlaylist->GetSegment(streaminfo->spPlaylist->FindLiveStartSegmentSequenceNumber()) :
-                streaminfo->spPlaylist->Segments.front();
+                (streaminfo->spPlaylist->Segments.empty() ? nullptr : streaminfo->spPlaylist->Segments.front());
+            if (StartSeg == nullptr)
+                return nullptr;
 
             bool tempsetActiveVariant = false;
             //temprarily set the active variant - otherwise code downstream will fail
